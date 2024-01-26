@@ -28,9 +28,9 @@ passport.use(new LocalStrategy({
 
 // Configurar Passport para utilizar la estrategia de autenticación de GitHub
 passport.use(new GitHubStrategy({
-  clientID: 'tu-id-de-cliente',
-  clientSecret: 'tu-secreto-de-cliente',
-  callbackURL: 'http://localhost:3000/auth/github/callback', // Reemplaza con la URL correcta
+  clientID: '68b25fadb2da04b510b6',
+  clientSecret: 'f8932f0bcd51b76f7fb2c1e72990d240af115bb1',
+  callbackURL: 'http://localhost:3000/auth/github/callback', 
 }, async (accessToken, refreshToken, profile, done) => {
   const githubUsername = profile.username;
 
@@ -42,7 +42,7 @@ passport.use(new GitHubStrategy({
       } else {
           const newUser = new userModel({
               githubUsername,
-              // Agrega más campos aquí según tus necesidades
+             
           });
 
           const savedUser = await newUser.save();
@@ -53,6 +53,14 @@ passport.use(new GitHubStrategy({
   }
 }));
 
+// Ruta para iniciar el proceso de autenticación de GitHub
+authRouter.get('/github', passport.authenticate('github'));
+
+ // Ruta para manejar el callback después de la autenticación exitosa o fallida de GitHub
+ authRouter.get('/github/callback', passport.authenticate('github', {
+  successRedirect: '/products',  // Redirección en caso de éxito de autenticación de GitHub
+  failureRedirect: '/login',     // Redirección en caso de falla de autenticación de GitHub
+}));
 
 // Ruta para renderizar la vista de registro
 authRouter.get('/register', (req, res) => {
@@ -92,7 +100,6 @@ authRouter.post('/login', (req, res, next) => {
     req.logIn(user, (err) => {
       if (err) { return next(err); }
       return res.json({ message: 'Login exitoso', user: req.user });
-      // Redireccion
     });
   })(req, res, next);
 });
